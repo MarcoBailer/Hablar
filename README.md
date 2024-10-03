@@ -25,7 +25,7 @@ Acompanhamento Personalizado: A IA monitora seu progresso e adapta as atividades
 Flutter: Para o desenvolvimento multiplataforma do aplicativo móvel.
 Dart: Linguagem de programação para desenvolvimento Flutter.
 Inteligência Artificial: Integrada para proporcionar interações naturais e aprendizado adaptativo.
-APIs de Reconhecimento de Voz e texto (.NET Core) : Para permitir conversas por voz e texto com a IA.
+APIs de Reconhecimento de Voz e texto (.NET Core) : Para permitir conversas por voz e texto com a IA - https://github.com/MarcoBailer/AuthApiHablar.
 
 ## Uso 🚀
 
@@ -44,5 +44,3 @@ Acompanhe seu Progresso: Veja suas estatísticas, conquistas e áreas para melho
 
  ## Junte-se a nós nesta jornada linguística e torne o aprendizado de idiomas uma aventura emocionante!
 
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter apps](https://flutter.dev/to/internationalization).
