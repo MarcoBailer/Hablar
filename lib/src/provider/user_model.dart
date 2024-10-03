@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hablar/src/auth/genre_section_screen.dart';
+import 'package:hablar/src/pages/auth/genre_section_screen.dart';
+
+import '../Widgets/genre_tile.dart';
 
 class UserModel extends ChangeNotifier {
   String _email = '';

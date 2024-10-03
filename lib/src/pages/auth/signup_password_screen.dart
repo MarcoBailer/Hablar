@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hablar/src/auth/signup_name_screen.dart';
+import 'package:hablar/src/pages/auth/signup_name_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../provider/user_model.dart';
-import '../sign_up_generic_screen/signup_generic_screen.dart';
+import '../../provider/user_model.dart';
+import '../../Widgets/signup_generic_screen.dart';
 
 class SignupPasswordScreen extends StatelessWidget {
   const SignupPasswordScreen({super.key});

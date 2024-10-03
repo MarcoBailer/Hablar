@@ -1,11 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hablar/src/Widgets/custom_text_form_field.dart';
 import 'package:hablar/src/Widgets/error_dialog.dart';
-import 'package:hablar/src/auth/genre_section_screen.dart';
+import 'package:hablar/src/pages/auth/genre_section_screen.dart';
+import 'package:http/io_client.dart';
 import 'package:provider/provider.dart';
 
-import '../Widgets/custom_elevated_button.dart';
-import '../provider/user_model.dart';
+import '../../Widgets/custom_elevated_button.dart';
+import '../../provider/user_model.dart';
 
 class SignupNameScreen extends StatefulWidget {
   const SignupNameScreen({super.key});
@@ -238,27 +243,7 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
               const SizedBox(height: 20),
               // (7) Botão "Criar uma conta"
               CustomElevatedButton(
-                onPressed: _acceptedTerms
-                    ? () {
-                        if (_formkey.currentState!.validate()) {
-                          // Salva o nome do usuário usando o Provider
-                          Provider.of<UserModel>(context, listen: false)
-                              .setName(_nameController.text);
-
-                          // Navega para a próxima tela
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const GenreSelectionScreen(),
-                            ),
-                          );
-                        } else {
-                          showErrorDialog(
-                              context, 'Preencha todos os campos corretamente');
-                        }
-                      }
-                    : null,
+                onPressed: _acceptedTerms ? _handleRegister : null,
                 text: 'Criar uma conta',
                 enabled: _acceptedTerms,
               ),
@@ -269,5 +254,90 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleRegister() async {
+    if (_formkey.currentState!.validate()) {
+      // Armazena os nomes no UserModel
+      Provider.of<UserModel>(context, listen: false)
+          .setName(_nameController.text.trim());
+      Provider.of<UserModel>(context, listen: false)
+          .setSecondName(_secondNameController.text.trim());
+      Provider.of<UserModel>(context, listen: false)
+          .setUserName(_usernameController.text.trim());
+
+      // Chama a função de registro
+      await _registerUser();
+    }
+  }
+
+  HttpClient _createHttpClient() {
+    final HttpClient client = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    return client;
+  }
+
+  IOClient createIOClient() {
+    return IOClient(_createHttpClient());
+  }
+
+  Future<void> _registerUser() async {
+    final user = Provider.of<UserModel>(context, listen: false);
+
+    final firstName = user.name;
+    final secondName = user.secondName;
+    final userName = user.userName;
+    final email = user.email;
+    final password = user.password;
+
+    final client = createIOClient();
+
+    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Register');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'firstName': firstName,
+      'lastName': secondName,
+      'userName': userName,
+      'email': email,
+      'password': password,
+    });
+
+    try {
+      final response = await client.post(url, headers: headers, body: body);
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['isSuccess'] == true) {
+          final token = data['message'];
+
+          // Armazene o token de forma segura
+          final storage = FlutterSecureStorage();
+          await storage.write(key: 'auth_token', value: token);
+
+          // Navega para a próxima tela ou tela principal
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const GenreSelectionScreen()),
+          );
+        } else {
+          // Registro falhou
+          showErrorDialog(context, data['message'] ?? 'Falha no registro.');
+        }
+      } else {
+        // Erro no servidor
+        showErrorDialog(
+            context, 'Erro no servidor. Tente novamente mais tarde.');
+      }
+    } catch (e) {
+      // Erro na requisição
+      print('Erro na requisição: $e');
+      showErrorDialog(context, 'Erro na conexão. Verifique sua internet.');
+    }
   }
 }

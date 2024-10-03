@@ -7,9 +7,9 @@ import 'package:hablar/src/Widgets/custom_text_form_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
-import '../Widgets/custom_elevated_button.dart';
-import '../pages/home/home_page.dart';
-import '../widgets/error_dialog.dart';
+import '../../Widgets/custom_elevated_button.dart';
+import '../home/home_page.dart';
+import '../../widgets/error_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -207,7 +207,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
-    final body = jsonEncode({'userName': email, 'password': password});
+    final body = jsonEncode({'email': email, 'password': password});
 
     try {
       final response = await client.post(url, headers: headers, body: body);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hablar/src/provider/user_model.dart';
-import 'package:hablar/src/sign_up_generic_screen/signup_generic_screen.dart';
+import 'package:hablar/src/Widgets/signup_generic_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'signup_password_screen.dart';

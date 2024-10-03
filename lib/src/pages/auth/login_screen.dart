@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hablar/src/auth/login_page.dart';
-import 'package:hablar/src/auth/signup_email_screen.dart';
+import 'package:hablar/src/pages/auth/login_page.dart';
+import 'package:hablar/src/pages/auth/signup_email_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
