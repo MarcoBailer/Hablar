@@ -293,7 +293,7 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
 
     final client = createIOClient();
 
-    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Register');
+    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'firstName': firstName,

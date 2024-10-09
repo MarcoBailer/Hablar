@@ -205,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> login(String email, String password) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Login');
+    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
     final body = jsonEncode({'email': email, 'password': password});
 
