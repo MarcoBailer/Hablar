@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 import '../../Widgets/custom_elevated_button.dart';
-import '../home/home_page.dart';
+import '../home/home_screen.dart';
 import '../../widgets/error_dialog.dart';
 
 class LoginPage extends StatefulWidget {
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
         // Navega para a tela principal
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
         // Exibe mensagem de erro
@@ -205,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> login(String email, String password) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Login');
+    final url = Uri.parse('https://172.16.59.23:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
     final body = jsonEncode({'email': email, 'password': password});
 

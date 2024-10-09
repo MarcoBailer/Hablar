@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'home_screen.dart';
 
 class FeaturesScreen extends StatelessWidget {
   const FeaturesScreen({Key? key}) : super(key: key);
@@ -69,7 +69,7 @@ class FeaturesScreen extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => const HomeScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
