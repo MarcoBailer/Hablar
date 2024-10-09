@@ -5,15 +5,15 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Início'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: const Center(
+      // appBar: AppBar(
+      //   title: const Text('Início'),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   automaticallyImplyLeading: false,
+      // ),
+      body: Center(
         child: Text(
           'Conteúdo da Aba Início',
           style: TextStyle(color: Colors.white),

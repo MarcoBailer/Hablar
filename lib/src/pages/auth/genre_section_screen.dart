@@ -39,6 +39,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 15, color: Colors.white),
         ),
+        automaticallyImplyLeading: false,
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 19, 16, 16),
       ),

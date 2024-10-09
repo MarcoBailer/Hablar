@@ -5,14 +5,14 @@ class StoriesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Histórias'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Histórias'),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   automaticallyImplyLeading: false,
+      // ),
       body: const Center(
         child: Text(
           'Conteúdo da Aba Histórias',

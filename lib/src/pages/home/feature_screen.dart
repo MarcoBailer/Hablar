@@ -16,7 +16,8 @@ class FeaturesScreen extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent, // Torna o AppBar transparente
-        elevation: 0, // Remove a sombra do AppBar
+        elevation: 0,
+        automaticallyImplyLeading: false, // Remove a sombra do AppBar
       ),
       extendBodyBehindAppBar: true, // Estende o corpo atrás do AppBar
       body: Stack(

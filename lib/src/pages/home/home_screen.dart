@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hablar/src/Widgets/custom_app_bar.dart';
+import 'package:hablar/src/Widgets/custom_drawer.dart';
 
 import '../tabs/home_tab.dart';
 import '../tabs/library_tab.dart';
@@ -25,9 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(            
+    return Scaffold(
       backgroundColor: Colors.black,
-      body: _screens[_currentIndex], // Exibe a tela correspondente à aba selecionada
+      appBar: const CustomAppBar(),
+      drawer: const CustomDrawer(),
+      body: _screens[
+          _currentIndex], // Exibe a tela correspondente à aba selecionada
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -37,19 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
+            icon: Icon(Icons.home,
+                color: _currentIndex == 0 ? Colors.white : Colors.grey),
             label: 'Início',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search, color: _currentIndex == 1 ? Colors.white : Colors.grey),
+            icon: Icon(Icons.search,
+                color: _currentIndex == 1 ? Colors.white : Colors.grey),
             label: 'Pesquisar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book, color: _currentIndex == 2 ? Colors.white : Colors.grey),
+            icon: Icon(Icons.book,
+                color: _currentIndex == 2 ? Colors.white : Colors.grey),
             label: 'Histórias',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_music, color: _currentIndex == 3 ? Colors.white : Colors.grey),
+            icon: Icon(Icons.library_music,
+                color: _currentIndex == 3 ? Colors.white : Colors.grey),
             label: 'Biblioteca',
           ),
         ],
