@@ -14,7 +14,10 @@ dependencies:
     sdk: flutter
   provider: ^6.0.0  
   http: ^0.13.3
+  jwt_decoder: ^2.0.1
   flutter_secure_storage: ^8.0.0
+  speech_to_text: ^7.0.0
+  flutter_tts: ^3.2.0
   flutter_localizations:
     sdk: flutter
 

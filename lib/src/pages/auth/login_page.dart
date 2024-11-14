@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hablar/src/Widgets/custom_text_form_field.dart';
 import 'package:http/http.dart' as http;
@@ -205,7 +206,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> login(String email, String password) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://{id-da-maquina}:7235/api/Auth/Login');
+    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
     final body = jsonEncode({'email': email, 'password': password});
 
@@ -218,11 +219,30 @@ class _LoginPageState extends State<LoginPage> {
         if (data['isSuccess'] == true) {
           final token = data['message'];
 
-          // Armazene o token de forma segura
-          final storage = FlutterSecureStorage();
-          await storage.write(key: 'auth_token', value: token);
+          try {
+            // Decodificar o token JWT
+            Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
 
-          return true;
+            // Verificar se a claim existe
+            if (decodedToken.containsKey(
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')) {
+              String userId = decodedToken[
+                  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+              // Armazenar o token e o userId de forma segura
+              final storage = FlutterSecureStorage();
+              await storage.write(key: 'auth_token', value: token);
+              await storage.write(key: 'user_id', value: userId);
+
+              return true;
+            } else {
+              print('Claim não encontrada no token.');
+              return false;
+            }
+          } catch (e) {
+            print('Erro ao decodificar o token: $e');
+            return false;
+          }
         } else {
           // Login falhou
           return false;

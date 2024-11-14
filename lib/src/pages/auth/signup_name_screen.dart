@@ -7,6 +7,7 @@ import 'package:hablar/src/Widgets/custom_text_form_field.dart';
 import 'package:hablar/src/Widgets/error_dialog.dart';
 import 'package:hablar/src/pages/auth/genre_section_screen.dart';
 import 'package:http/io_client.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 
 import '../../Widgets/custom_elevated_button.dart';
@@ -293,7 +294,7 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
 
     final client = createIOClient();
 
-    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Register');
+    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'firstName': firstName,
@@ -315,16 +316,35 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
         if (data['isSuccess'] == true) {
           final token = data['message'];
 
-          // Armazene o token de forma segura
-          final storage = FlutterSecureStorage();
-          await storage.write(key: 'auth_token', value: token);
+          try {
+            // Decodificar o token JWT
+            Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
 
-          // Navega para a próxima tela ou tela principal
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const GenreSelectionScreen()),
-          );
+            // Verificar se a claim existe
+            if (decodedToken.containsKey(
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')) {
+              String userId = decodedToken[
+                  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+              // Armazenar o token e o userId de forma segura
+              final storage = FlutterSecureStorage();
+              await storage.write(key: 'auth_token', value: token);
+              await storage.write(key: 'user_id', value: userId);
+
+              // Navega para a próxima tela ou tela principal
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const GenreSelectionScreen()),
+              );
+            } else {
+              print('Claim não encontrada no token.');
+              return;
+            }
+          } catch (e) {
+            print('Erro ao decodificar o token: $e');
+            return;
+          }
         } else {
           // Registro falhou
           showErrorDialog(context, data['message'] ?? 'Falha no registro.');
