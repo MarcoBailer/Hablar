@@ -39,8 +39,8 @@ class CustomDrawer extends StatelessWidget {
                   style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SettingsScreen()));
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SettingsScreen()));
               },
             ),
             ListTile(
