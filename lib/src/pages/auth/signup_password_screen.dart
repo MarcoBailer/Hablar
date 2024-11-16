@@ -10,8 +10,6 @@ class SignupPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final email = Provider.of<UserModel>(context).email;
-
     return SignupGenericScreen(
       title: 'Crie uma senha',
       question: 'Escolha uma senha',

@@ -1,16 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
+// lib/pages/login_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hablar/src/Widgets/custom_text_form_field.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
+import 'package:hablar/src/services/auth_service.dart';
+import 'package:hablar/src/widgets/custom_elevated_button.dart';
+import 'package:hablar/src/widgets/error_dialog.dart';
 
-import '../../Widgets/custom_elevated_button.dart';
 import '../home/home_screen.dart';
-import '../../widgets/error_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
 
   bool _isLoading = false;
+
+  // Instância do AuthService
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 10),
               CustomTextFormFied(
                 controller: _emailController,
-                hintText: 'Digite seu primeiro nome',
+                hintText: 'Digite seu email',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira seu email';
@@ -144,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                 text: 'Entrar',
                 isLoading: _isLoading,
               ),
-
               const SizedBox(height: 20),
               // Link "Esqueci minha senha"
               GestureDetector(
@@ -169,92 +167,32 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
 
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      final success = await login(email, password);
+      final result = await _authService.login(email, password);
 
-      setState(() {
-        _isLoading = false;
-      });
+      if (!mounted) return;
 
-      if (success) {
+      if (result.success) {
         // Navega para a tela principal
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
+        setState(() {
+          _isLoading = false;
+        });
         // Exibe mensagem de erro
-        showErrorDialog(context, 'Email ou senha inválidos.');
+        showErrorDialog(context, result.message ?? 'Unknown error');
       }
-    }
-  }
-
-  IOClient createHttpClient() {
-    final HttpClient httpClient = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-
-    return IOClient(httpClient);
-  }
-
-  Future<bool> login(String email, String password) async {
-    final client = createHttpClient();
-
-    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Login');
-    final headers = {'Content-Type': 'application/json-patch+json'};
-    final body = jsonEncode({'email': email, 'password': password});
-
-    try {
-      final response = await client.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['isSuccess'] == true) {
-          final token = data['message'];
-
-          try {
-            // Decodificar o token JWT
-            Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-
-            // Verificar se a claim existe
-            if (decodedToken.containsKey(
-                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')) {
-              String userId = decodedToken[
-                  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-
-              // Armazenar o token e o userId de forma segura
-              final storage = FlutterSecureStorage();
-              await storage.write(key: 'auth_token', value: token);
-              await storage.write(key: 'user_id', value: userId);
-
-              return true;
-            } else {
-              print('Claim não encontrada no token.');
-              return false;
-            }
-          } catch (e) {
-            print('Erro ao decodificar o token: $e');
-            return false;
-          }
-        } else {
-          // Login falhou
-          return false;
-        }
-      } else {
-        // Erro no servidor
-        return false;
-      }
-    } catch (e) {
-      // Erro na requisição
-      print('Erro na requisição: $e');
-      return false;
     }
   }
 }

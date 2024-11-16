@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hablar/src/Widgets/custom_text_form_field.dart';
 import 'package:hablar/src/Widgets/error_dialog.dart';
 import 'package:hablar/src/pages/auth/genre_section_screen.dart';
-import 'package:http/io_client.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:hablar/src/provider/auth_result_model.dart';
+import 'package:hablar/src/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../Widgets/custom_elevated_button.dart';
@@ -21,6 +17,7 @@ class SignupNameScreen extends StatefulWidget {
 }
 
 class _SignupNameScreenState extends State<SignupNameScreen> {
+  final AuthService _authService = AuthService();
   final _formkey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _secondNameController = TextEditingController();
@@ -28,6 +25,8 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
   bool _checkbox1 = false;
   bool _checkbox2 = false;
   bool _acceptedTerms = false;
+  // ignore: unused_field
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -259,105 +258,42 @@ class _SignupNameScreenState extends State<SignupNameScreen> {
 
   Future<void> _handleRegister() async {
     if (_formkey.currentState!.validate()) {
-      // Armazena os nomes no UserModel
-      Provider.of<UserModel>(context, listen: false)
-          .setName(_nameController.text.trim());
-      Provider.of<UserModel>(context, listen: false)
-          .setSecondName(_secondNameController.text.trim());
-      Provider.of<UserModel>(context, listen: false)
-          .setUserName(_usernameController.text.trim());
+      setState(() {
+        _isLoading = true;
+      });
+
+      final firstName = _nameController.text.trim();
+      final secondName = _secondNameController.text.trim();
+      final userName = _usernameController.text.trim();
+
+      // Obter email e senha do UserModel
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      final email = userModel.email;
+      final password = userModel.password;
 
       // Chama a função de registro
-      await _registerUser();
-    }
-  }
+      AuthResultModel result = await _authService.register(
+        firstName: firstName,
+        lastName: secondName,
+        userName: userName,
+        email: email,
+        password: password,
+      );
 
-  HttpClient _createHttpClient() {
-    final HttpClient client = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-    return client;
-  }
+      setState(() {
+        _isLoading = false;
+      });
 
-  IOClient createIOClient() {
-    return IOClient(_createHttpClient());
-  }
-
-  Future<void> _registerUser() async {
-    final user = Provider.of<UserModel>(context, listen: false);
-
-    final firstName = user.name;
-    final secondName = user.secondName;
-    final userName = user.userName;
-    final email = user.email;
-    final password = user.password;
-
-    final client = createIOClient();
-
-    final url = Uri.parse('https://192.168.1.7:7235/api/Auth/Register');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'firstName': firstName,
-      'lastName': secondName,
-      'userName': userName,
-      'email': email,
-      'password': password,
-    });
-
-    try {
-      final response = await client.post(url, headers: headers, body: body);
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['isSuccess'] == true) {
-          final token = data['message'];
-
-          try {
-            // Decodificar o token JWT
-            Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-
-            // Verificar se a claim existe
-            if (decodedToken.containsKey(
-                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')) {
-              String userId = decodedToken[
-                  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-
-              // Armazenar o token e o userId de forma segura
-              final storage = FlutterSecureStorage();
-              await storage.write(key: 'auth_token', value: token);
-              await storage.write(key: 'user_id', value: userId);
-
-              // Navega para a próxima tela ou tela principal
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const GenreSelectionScreen()),
-              );
-            } else {
-              print('Claim não encontrada no token.');
-              return;
-            }
-          } catch (e) {
-            print('Erro ao decodificar o token: $e');
-            return;
-          }
-        } else {
-          // Registro falhou
-          showErrorDialog(context, data['message'] ?? 'Falha no registro.');
-        }
+      if (result.success) {
+        // Navega para a próxima tela ou tela principal
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GenreSelectionScreen()),
+        );
       } else {
-        // Erro no servidor
-        showErrorDialog(
-            context, 'Erro no servidor. Tente novamente mais tarde.');
+        // Exibe mensagem de erro
+        showErrorDialog(context, result.message ?? 'An unknown error occurred');
       }
-    } catch (e) {
-      // Erro na requisição
-      print('Erro na requisição: $e');
-      showErrorDialog(context, 'Erro na conexão. Verifique sua internet.');
     }
   }
 }
