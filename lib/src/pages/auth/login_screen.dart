@@ -12,37 +12,37 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       body: Stack(
         children: [
-          // Imagem de background que ocupa metade da tela
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: screenHeight * 0.5,
+          Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/IMG_2756 1.png'),
-                  fit: BoxFit.cover,
-                ),
+                gradient: LinearGradient(
+                    colors: [
+                      Colors.orange,
+                      Colors.red,
+                    ],
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topLeft,
+                    transform: GradientRotation(0.1)),
               ),
-              // color: const Color.fromARGB(255, 19, 16, 16),
             ),
           ),
-          // Fundo preto na metade inferior da tela
-          Positioned(
-            top: screenHeight * 0.5,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              color: const Color.fromARGB(255, 19, 16, 16),
-            ),
-          ),
+          // Imagem PNG sem fundo sobre o degradê
+          // Positioned(
+          //   top: 50,
+          //   left: 0,
+          //   right: 0,
+          //   child: Opacity(
+          //     opacity: 0.9,
+          //     child: Image.asset(
+          //       'assets/images/0160.png',
+          //       height: 300,
+          //       fit: BoxFit.contain,
+          //     ),
+          //   ),
+          // ),
           // Conteúdo da tela
           Align(
             alignment: Alignment.bottomCenter,
@@ -51,27 +51,22 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Ícone genérico (Flutter)
-                  const FlutterLogo(size: 80),
-                  const SizedBox(height: 20),
-                  // Título com quebra de linha
-                  const Text(
-                    'Milhões de histórias\nGratuitos no Hablar',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const SizedBox(height: 5),
+                  Image.asset(
+                    'assets/images/product_logo.png',
+                    height: 270,
                   ),
-                  const SizedBox(height: 15),
-                  // Botão "Iniciar de forma gratuita" com gradiente
+                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
                     height: 50,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Colors.red, Colors.orange],
+                        //quero essa cor #bbb9b9
+                        colors: [
+                          Color.fromARGB(255, 28, 28, 28),
+                          Color.fromARGB(255, 43, 39, 39)
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -92,69 +87,123 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        'Iniciar de forma gratuita',
-                        style: TextStyle(fontSize: 18),
+                        'Inscrever-se gratuitamente',
+                        style: TextStyle(
+                          fontSize: 18,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  //link logar
+                  const SizedBox(height: 15),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 28, 28, 28),
+                          Color.fromARGB(255, 43, 39, 39)
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          foregroundColor: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Já tem uma conta? Faça login',
+                        style: TextStyle(
+                          fontSize: 18,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        onPressed: () {},
-                        child: const Text(
-                          'Continuar com Google',
-                          style: TextStyle(fontSize: 18),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        'Continuar com Google',
+                        style: TextStyle(
+                          fontSize: 18,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.black54,
+                            ),
+                          ],
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 15),
                   // Botão "Continuar com Facebook"
                   SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        onPressed: () {},
-                        child: const Text(
-                          'Continuar com Facebook',
-                          style: TextStyle(fontSize: 18),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        'Continuar com Facebook',
+                        style: TextStyle(
+                          fontSize: 18,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.black54,
+                            ),
+                          ],
                         ),
-                      )),
-                  const SizedBox(height: 15),
-                  // Link "Logar"
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Logar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        decoration: TextDecoration.underline,
-                        fontSize: 16,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 120),
                 ],
               ),
             ),
