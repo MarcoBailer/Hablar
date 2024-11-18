@@ -7,89 +7,95 @@ class FeaturesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Título no topo da tela
-      appBar: AppBar(
-        title: const Text(
-          'Hablar',
-          style: TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent, // Torna o AppBar transparente
-        elevation: 0,
-        automaticallyImplyLeading: false, // Remove a sombra do AppBar
-      ),
-      extendBodyBehindAppBar: true, // Estende o corpo atrás do AppBar
       body: Stack(
         children: [
-          // Imagem de background cobrindo toda a tela
-          SizedBox.expand(
-            child: Image.asset('assets/images/night-mood-night.jpg',
-                fit: BoxFit.cover),
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [
+                      Colors.red,
+                      Colors.orange,
+                    ],
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topLeft,
+                    transform: GradientRotation(0.1)),
+              ),
+            ),
           ),
-          // Conteúdo sobreposto à imagem
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Espaço para o título centralizado
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'Deixe nossa IA criar histórias incríveis para você!',
-                    style: TextStyle(
-                      color: Colors.white, // Cor do texto para contraste
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(0, 1),
-                          blurRadius: 5,
-                          color: Colors.black54,
+          Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Image.asset(
+                'assets/images/product_logo_mascote.PNG',
+                height: 125,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 120),
+                        Image.asset(
+                          'assets/images/0160.png',
+                          height: 300,
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Você está prestes a entrar em uma jornada incrível!',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              ),
-              // Botão "Continuar" no final da tela
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.red, Colors.orange],
+                  Image.asset(
+                    'assets/images/logo_trial_(1)-transformed_processed_letters.PNG',
+                    height: 125,
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.orange,
+                          Colors.orangeAccent,
+                        ],
                       ),
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
                     ),
-                    child: ElevatedButton(
+                    child: TextButton(
                       onPressed: () {
-                        // Navega para a tela HomePage
-                        Navigator.pushReplacement(
-                          context,
+                        Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
+                            builder: (context) => const HomeScreen(),
+                          ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
                       child: const Text(
                         'Continuar',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),

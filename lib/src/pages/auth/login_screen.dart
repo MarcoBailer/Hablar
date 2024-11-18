@@ -29,21 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          // Imagem PNG sem fundo sobre o degradê
-          // Positioned(
-          //   top: 50,
-          //   left: 0,
-          //   right: 0,
-          //   child: Opacity(
-          //     opacity: 0.9,
-          //     child: Image.asset(
-          //       'assets/images/0160.png',
-          //       height: 300,
-          //       fit: BoxFit.contain,
-          //     ),
-          //   ),
-          // ),
           // Conteúdo da tela
+          //colocar uma logo no topo da tela
+          Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Image.asset(
+                'assets/images/product_logo_mascote.PNG',
+                height: 125,
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -51,12 +49,11 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 5),
                   Image.asset(
-                    'assets/images/product_logo.png',
-                    height: 270,
+                    'assets/images/logo_trial_(1)-transformed_processed_letters.PNG',
+                    height: 125,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
                     height: 50,
