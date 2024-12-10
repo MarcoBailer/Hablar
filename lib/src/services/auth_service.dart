@@ -20,7 +20,7 @@ class AuthService {
   Future<AuthResultModel> login(String email, String password) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Login');
+    final url = Uri.parse('https://192.168.0.26:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
     final body = jsonEncode({'email': email, 'password': password});
 
@@ -81,7 +81,7 @@ class AuthService {
   }) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://{ip-da-maquina}:7235/api/Auth/Register');
+    final url = Uri.parse('https://192.168.0.26:7235/api/Auth/Register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'firstName': firstName,
