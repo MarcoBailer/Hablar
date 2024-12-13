@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -20,12 +21,14 @@ class AuthService {
   Future<AuthResultModel> login(String email, String password) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://192.168.0.26:7235/api/Auth/Login');
+    final url = Uri.parse('https://192.168.0.20:7235/api/Auth/Login');
     final headers = {'Content-Type': 'application/json-patch+json'};
     final body = jsonEncode({'email': email, 'password': password});
 
     try {
-      final response = await client.post(url, headers: headers, body: body);
+      final response = await client
+          .post(url, headers: headers, body: body)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -67,6 +70,9 @@ class AuthService {
             success: false,
             message: 'Erro no servidor: ${response.statusCode}');
       }
+    } on TimeoutException catch (e) {
+      return AuthResultModel(
+          success: false, message: 'Tempo de requisição excedido. $e');
     } catch (e) {
       return AuthResultModel(success: false, message: 'Erro na requisição.');
     }
@@ -81,7 +87,7 @@ class AuthService {
   }) async {
     final client = createHttpClient();
 
-    final url = Uri.parse('https://192.168.0.26:7235/api/Auth/Register');
+    final url = Uri.parse('https://192.168.0.20:7235/api/Auth/Register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'firstName': firstName,
@@ -92,7 +98,9 @@ class AuthService {
     });
 
     try {
-      final response = await client.post(url, headers: headers, body: body);
+      final response = await client
+          .post(url, headers: headers, body: body)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -132,6 +140,9 @@ class AuthService {
         // Erro no servidor
         return AuthResultModel(success: false, message: 'Erro no servidor.');
       }
+    } on TimeoutException catch (e) {
+      return AuthResultModel(
+          success: false, message: 'Tempo de requisição excedido. $e');
     } catch (e) {
       // Erro na requisição
       return AuthResultModel(success: false, message: 'Erro na requisição.');

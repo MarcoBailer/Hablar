@@ -6,10 +6,14 @@ import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
   final String sessionId;
+  final String name;
   final List<dynamic> messages;
 
-  const ChatScreen({Key? key, required this.sessionId, required this.messages})
-      : super(key: key);
+  const ChatScreen(
+      {super.key,
+      required this.sessionId,
+      required this.name,
+      required this.messages});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -70,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _startTypingAnimation();
 
     // Enviar a requisição para o endpoint de resposta (exemplo)
-    final url = Uri.parse('http://192.168.0.26:3000/api/chat/send-message');
+    final url = Uri.parse('http://192.168.0.20:3000/api/chat/send-message');
 
     final body = {
       "sessionId": widget.sessionId,
@@ -185,8 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("AI está digitando",
-                style: TextStyle(color: Colors.black)),
+            const Text("", style: TextStyle(color: Colors.black)),
             const SizedBox(width: 8),
             Text(_typingText, style: const TextStyle(color: Colors.black)),
           ],
@@ -199,7 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat - Sessão: ${widget.sessionId}'),
+        title: Text('Chat - Sessão: ${widget.name}'),
       ),
       body: Column(
         children: [

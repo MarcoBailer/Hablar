@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hablar/src/pages/chat/chat_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hablar/src/services/message_service.dart';
+import 'package:http/http.dart';
 
 class StoriesTab extends StatefulWidget {
   const StoriesTab({Key? key}) : super(key: key);
@@ -13,37 +14,13 @@ class StoriesTab extends StatefulWidget {
 
 class _StoriesTabState extends State<StoriesTab> {
   late Future<List<dynamic>> _futureSessions;
-  final _storage = const FlutterSecureStorage();
+  final TextEditingController _name = TextEditingController();
+  final MessageService _messageService = MessageService();
 
   @override
   void initState() {
     super.initState();
-    _futureSessions = _fetchSessions();
-  }
-
-  Future<List<dynamic>> _fetchSessions() async {
-    // Recuperar o token armazenado
-    final token = await _storage.read(key: 'auth_token');
-
-    if (token == null) {
-      throw Exception('Token não encontrado. Faça login novamente.');
-    }
-
-    final url =
-        Uri.parse('http://192.168.0.26:3000/api/chat/get-user-sessions');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // Incluindo o Bearer Token
-    };
-
-    final response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data;
-    } else {
-      throw Exception('Falha ao carregar sessões: ${response.statusCode}');
-    }
+    _futureSessions = _messageService.fetchSessions();
   }
 
   @override
@@ -72,17 +49,17 @@ class _StoriesTabState extends State<StoriesTab> {
               ),
             );
           } else {
-            final sessions = snapshot.data!;
+            final names = snapshot.data!;
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: sessions.length,
+                    itemCount: names.length,
                     itemBuilder: (context, index) {
-                      final session = sessions[index];
-                      final sessionId = session['sessionId'];
-                      final messages = session['messages'] ?? [];
+                      final name = names[index];
+                      final sessionName = name['name'] ?? '';
+                      final messages = name['messages'] ?? [];
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -99,33 +76,20 @@ class _StoriesTabState extends State<StoriesTab> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatScreen(
-                                  sessionId: sessionId,
+                                  sessionId: name['sessionId'],
+                                  name: sessionName,
                                   messages: messages,
                                 ),
                               ),
                             );
                           },
-                          child: const Text(
-                            'Título', // Futuramente substituído pelo nome do usuário
-                            style: TextStyle(color: Colors.white),
+                          child: Text(
+                            sessionName,
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       );
                     },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Ação do botão de adicionar algo futuramente
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(20),
-                      backgroundColor: const Color.fromARGB(255, 240, 126, 27),
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 40),
                   ),
                 ),
               ],
@@ -133,6 +97,84 @@ class _StoriesTabState extends State<StoriesTab> {
           }
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Iniciar nova sessão'),
+                  content: TextField(
+                    controller: _name,
+                    decoration: const InputDecoration(
+                      hintText: 'Nome da sessão',
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Fechar o diálogo primeiro
+                        _handleStartSession(); // Iniciar sessão em seguida
+                      },
+                      child: const Text('Iniciar'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(20),
+            backgroundColor: const Color.fromARGB(255, 240, 126, 27),
+          ),
+          child: const Icon(Icons.add, color: Colors.white, size: 40),
+        ),
+      ),
     );
+  }
+
+  Future<void> _handleStartSession() async {
+    final result = await _messageService.startSession(_name.text);
+
+    if (result.success) {
+      _name.clear();
+
+      if (result.response is Response) {
+        final responseBody = (result.response as Response).body;
+        final data = jsonDecode(responseBody);
+        final name = data['session']['name'];
+        final sessionId = data['session']['sessionId'];
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              name: name,
+              sessionId: sessionId,
+              messages: const [],
+            ),
+          ),
+        );
+      } else {
+        // Trate o caso onde response não é do tipo esperado
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Resposta inesperada do servidor')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.message)),
+      );
+    }
   }
 }
