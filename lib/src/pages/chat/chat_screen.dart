@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hablar/src/services/message_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -23,20 +24,19 @@ class _ChatScreenState extends State<ChatScreen> {
   late List<dynamic> _messages;
   final TextEditingController _controller = TextEditingController();
   final _storage = const FlutterSecureStorage();
+  final _messageService = MessageService();
 
-  bool isTyping =
-      false; // Indica se a "ai" está "digitando" (esperando resposta)
+  bool isTyping = false;
 
-  // Controlador para a animação simples de "digitando..."
   Timer? _typingTimer;
-  String _typingText = "..."; // Texto base da animação
-  int _typingIndex = 1; // Para animar a quantidade de pontos
+  String _typingText = "...";
+  int _typingIndex = 1;
 
   @override
   void initState() {
     super.initState();
     _messages = List<dynamic>.from(widget.messages);
-    // Opcional: se quiser iniciar alguma animação de digitação em outro momento
+    _messageService.fetchMessages(widget.sessionId);
   }
 
   @override
@@ -59,7 +59,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (trimmedContent.isEmpty) return;
 
-    // Adicionar imediatamente a mensagem do usuário na tela
     final userMessage = {
       "author": "user",
       "content": trimmedContent,
@@ -70,11 +69,9 @@ class _ChatScreenState extends State<ChatScreen> {
       _controller.clear();
     });
 
-    // Agora ativamos o indicador de digitação
     _startTypingAnimation();
 
-    // Enviar a requisição para o endpoint de resposta (exemplo)
-    final url = Uri.parse('http://192.168.0.20:3000/api/chat/send-message');
+    final url = Uri.parse('http://{ip}:3000/api/chat/send-message');
 
     final body = {
       "sessionId": widget.sessionId,
@@ -92,18 +89,20 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Supondo que a resposta da AI venha diretamente neste endpoint
-        // Exemplo de resposta: {"author": "ai", "content": "Resposta da ai..."}
-        final newMessage = json.decode(response.body);
+        final decoded = json.decode(response.body);
 
-        // Adicionar a mensagem da AI
+        final newMessage = {
+          "author": "bot",
+          "content": decoded['response'],
+          "timestamp": DateTime.now().toIso8601String()
+        };
+
         setState(() {
           _messages.add(newMessage);
           isTyping = false;
         });
         _stopTypingAnimation();
       } else {
-        // Falha no envio ou na obtenção da resposta
         setState(() {
           isTyping = false;
         });
@@ -206,15 +205,12 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Lista de mensagens
           Expanded(
             child: ListView.builder(
               reverse: false,
               itemCount: _messages.length + (isTyping ? 1 : 0),
-              // Se isTyping for true, adicionamos um item a mais para o indicador de digitação
               itemBuilder: (context, index) {
                 if (isTyping && index == _messages.length) {
-                  // Último item é o indicador de digitação
                   return _buildTypingIndicator();
                 } else {
                   final message = _messages[index];
@@ -223,7 +219,6 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          // Campo de input
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

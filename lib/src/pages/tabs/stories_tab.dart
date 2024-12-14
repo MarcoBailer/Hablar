@@ -134,10 +134,10 @@ class _StoriesTabState extends State<StoriesTab> {
           },
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(10),
             backgroundColor: const Color.fromARGB(255, 240, 126, 27),
           ),
-          child: const Icon(Icons.add, color: Colors.white, size: 40),
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
         ),
       ),
     );
