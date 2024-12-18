@@ -5,11 +5,13 @@ class MessageResultModel {
   final String? sessionId;
   final String message;
   final Response? response;
+  final Map<String, dynamic>? data;
 
   MessageResultModel({
     required this.success,
     this.sessionId,
     required this.message,
     this.response,
+    this.data,
   });
 }

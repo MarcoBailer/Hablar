@@ -73,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 50),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 160.0),
+            padding: const EdgeInsets.symmetric(horizontal: 120),
             child: ElevatedButton(
               onPressed: () async {
                 // Limpa os dados de autenticação armazenados

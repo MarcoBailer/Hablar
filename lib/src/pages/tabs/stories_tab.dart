@@ -124,6 +124,9 @@ class _StoriesTabState extends State<StoriesTab> {
                       onPressed: () {
                         Navigator.pop(context); // Fechar o diálogo primeiro
                         _handleStartSession(); // Iniciar sessão em seguida
+                        setState(() {
+                          _futureSessions = _messageService.fetchSessions();
+                        });
                       },
                       child: const Text('Iniciar'),
                     ),

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hablar/src/services/message_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
@@ -21,9 +18,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late List<dynamic> _messages;
+  List<dynamic> _messages = [];
   final TextEditingController _controller = TextEditingController();
-  final _storage = const FlutterSecureStorage();
   final _messageService = MessageService();
 
   bool isTyping = false;
@@ -35,93 +31,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _messages = List<dynamic>.from(widget.messages);
-    _messageService.fetchMessages(widget.sessionId);
+    _loadMessages();
   }
 
   @override
   void dispose() {
     _typingTimer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _sendMessage(String content) async {
-    final trimmedContent = content.trim();
-    final token = await _storage.read(key: 'auth_token');
-
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Token não encontrado. Faça login novamente.')),
-      );
-      return;
-    }
-
-    if (trimmedContent.isEmpty) return;
-
-    final userMessage = {
-      "author": "user",
-      "content": trimmedContent,
-      "timestamp": DateTime.now().toIso8601String()
-    };
-    setState(() {
-      _messages.add(userMessage);
-      _controller.clear();
-    });
-
-    _startTypingAnimation();
-
-    final url = Uri.parse('http://{ip}:3000/api/chat/send-message');
-
-    final body = {
-      "sessionId": widget.sessionId,
-      "message": trimmedContent,
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-        body: json.encode(body),
-      );
-
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-
-        final newMessage = {
-          "author": "bot",
-          "content": decoded['response'],
-          "timestamp": DateTime.now().toIso8601String()
-        };
-
-        setState(() {
-          _messages.add(newMessage);
-          isTyping = false;
-        });
-        _stopTypingAnimation();
-      } else {
-        setState(() {
-          isTyping = false;
-        });
-        _stopTypingAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Falha ao obter resposta da AI: ${response.body}')),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        isTyping = false;
-      });
-      _stopTypingAnimation();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Erro ao enviar mensagem. Verifique a conexão.')),
-      );
-    }
   }
 
   void _startTypingAnimation() {
@@ -232,14 +148,14 @@ class _ChatScreenState extends State<ChatScreen> {
                         border: OutlineInputBorder(),
                       ),
                       onSubmitted: (value) {
-                        _sendMessage(value);
+                        _handleMessageService(value);
                       },
                     ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
-                      _sendMessage(_controller.text);
+                      _handleMessageService(_controller.text);
                     },
                     child: const Text('Enviar'),
                   ),
@@ -250,5 +166,62 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _loadMessages() async {
+    try {
+      final messages = await _messageService.fetchMessages(widget.sessionId);
+      setState(() {
+        _messages = List<dynamic>.from(messages);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao carregar mensagens.')),
+      );
+    }
+  }
+
+  Future<void> _handleMessageService(String content) async {
+    final trimmedContent = content.trim();
+    if (trimmedContent.isEmpty) return;
+
+    // Primeiro, adicionar a mensagem do usuário localmente
+    final userMessage = {
+      "author": "user",
+      "content": trimmedContent,
+      "timestamp": DateTime.now().toIso8601String()
+    };
+    setState(() {
+      _messages.add(userMessage);
+      _controller.clear();
+    });
+
+    _startTypingAnimation();
+
+    // Agora chamar o serviço
+    final result =
+        await _messageService.sendMessage(widget.sessionId, trimmedContent);
+
+    // Parar animação independente do resultado
+    _stopTypingAnimation();
+    setState(() {
+      isTyping = false;
+    });
+
+    if (result.success) {
+      // Adicionar a mensagem do bot retornada no result.data
+      final newMessage = result.data;
+      // Esperamos que result.data seja um mapa com o author, content, timestamp
+      if (newMessage != null) {
+        setState(() {
+          _messages.add(newMessage);
+        });
+      }
+    } else {
+      // Exibir erro
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.message)),
+      );
+    }
   }
 }
