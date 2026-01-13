@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Lista de widgets para cada aba
   final List<Widget> _screens = [
-    const HomeTab(),
+    const WebSocketChatPage(),
     const SearchTab(),
     const StoriesTab(),
     const LibraryTab(),

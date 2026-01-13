@@ -1,0 +1,2 @@
+C:/Users/maico/source/repos/hablar/android/app/.cxx/Debug/z706ik1o/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/maico/source/repos/hablar/android/app/.cxx/Debug/z706ik1o/armeabi-v7a/CMakeFiles/rebuild_cache.dir
